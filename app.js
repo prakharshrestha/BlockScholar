@@ -19,6 +19,7 @@ function switchTab(tabId) {
 let walletAddress = null;
 
 async function connectWallet() {
+  alert("Button clicked! Attempting to connect...");
   if (!window.ethereum) {
     alert('MetaMask is not installed. Please install it from https://metamask.io');
     return null;
@@ -29,12 +30,40 @@ async function connectWallet() {
     walletAddress = accounts[0];
     updateWalletUI(walletAddress);
 
+    // --- AUTO SWITCH TO GANACHE NETWORK ---
+    try {
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: '0x539' }], // 1337 in hex
+      });
+    } catch (switchError) {
+      if (switchError.code === 4902 || switchError.code === -32603) {
+        try {
+          await window.ethereum.request({
+            method: 'wallet_addEthereumChain',
+            params: [{
+              chainId: '0x539',
+              chainName: 'Ganache Local',
+              rpcUrls: ['http://127.0.0.1:7545'],
+              nativeCurrency: { name: 'Ethereum', symbol: 'ETH', decimals: 18 }
+            }],
+          });
+        } catch (addError) {
+          alert('Error adding network: ' + addError.message);
+        }
+      } else {
+        alert('Error switching network: ' + switchError.message);
+      }
+    }
+
     window.ethereum.on('accountsChanged', (accs) => {
       walletAddress = accs[0] || null;
       updateWalletUI(walletAddress);
     });
+    alert("Connection successful!");
     return provider;
   } catch (err) {
+    alert('Connection error: ' + err.message);
     console.error('Wallet connection failed:', err);
     return null;
   }
@@ -87,7 +116,8 @@ function hideAlert(id) {
 function parseContractError(err) {
   const raw = err?.message || err?.stack || '';
   const parts = raw.split('____');
-  return parts.length >= 2 ? parts[1].trim() : 'Transaction failed. Check console for details.';
+  if (parts.length >= 2) return parts[1].trim();
+  return 'Transaction failed. Error: ' + raw.substring(0, 300);
 }
 
 function statusBadge(status) {

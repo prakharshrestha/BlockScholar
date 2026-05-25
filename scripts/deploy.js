@@ -108,6 +108,7 @@ async function main() {
     language: 'Solidity',
     sources:  { 'ScholarshipDisbursement.sol': { content: source } },
     settings: {
+      evmVersion: 'paris',
       optimizer:       { enabled: true, runs: 200 },
       outputSelection: { '*': { '*': ['abi', 'evm.bytecode'] } },
     },
