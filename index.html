@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>BlockScholar — Decentralized Scholarship Disbursement</title>
+  <meta name="description" content="BlockScholar: A trustless, automated scholarship disbursement dApp powered by Ethereum smart contracts. Funds flow directly to students the moment merit criteria are met.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+  <script src="https://cdn.ethers.io/lib/ethers-5.2.umd.min.js" type="application/javascript"></script>
+  <script src="config.js"></script>
+</head>
+<body>
+
+  <!-- ── ANIMATED BACKGROUND ─────────────────────────────────────────────── -->
+  <div class="bg-grid"></div>
+  <div class="bg-orb orb-1"></div>
+  <div class="bg-orb orb-2"></div>
+  <div class="bg-orb orb-3"></div>
+
+  <!-- ── HEADER ──────────────────────────────────────────────────────────── -->
+  <header class="app-header">
+    <div class="brand">
+      <div class="brand-logo">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+          <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+        </svg>
+      </div>
+      <span class="brand-name">Block<span>Scholar</span></span>
+    </div>
+
+    <nav class="header-nav">
+      <button class="hnav-btn active" data-tab="tab-home"     onclick="switchTab('tab-home')">Home</button>
+      <button class="hnav-btn"        data-tab="tab-student"  onclick="switchTab('tab-student')">Student</button>
+      <button class="hnav-btn"        data-tab="tab-provider" onclick="switchTab('tab-provider')">Provider</button>
+      <button class="hnav-btn"        data-tab="tab-staff"    onclick="switchTab('tab-staff')">Staff</button>
+    </nav>
+
+    <button class="wallet-btn" id="walletBtn" onclick="connectWallet()">
+      <span class="wallet-indicator" id="walletDot"></span>
+      <span id="walletLabel">Connect Wallet</span>
+    </button>
+  </header>
+
+  <!-- ── TAB: HOME ───────────────────────────────────────────────────────── -->
+  <section class="tab-panel active" id="tab-home">
+
+    <!-- HERO -->
+    <div class="hero">
+      <div class="hero-eyebrow">
+        <span class="eyebrow-dot"></span>
+        Powered by Ethereum Smart Contracts
+      </div>
+      <h1 class="hero-title">
+        Scholarship Funding,<br>
+        <span class="hero-grad">Automated On-Chain</span>
+      </h1>
+      <p class="hero-sub">
+        A trustless system where scholarship funds are locked in smart contracts and paid
+        directly to students the moment their academic results are verified — zero intermediaries, zero delays.
+      </p>
+      <div class="hero-actions">
+        <button class="btn btn-primary btn-lg" onclick="switchTab('tab-student')">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+          Get Started
+        </button>
+        <button class="btn btn-ghost btn-lg" onclick="switchTab('tab-provider')">
+          Fund a Scholarship →
+        </button>
+      </div>
+
+      <!-- STATS -->
+      <div class="hero-stats">
+        <div class="stat-chip">
+          <span class="stat-icon">🔗</span>
+          <span>3 Smart Contracts</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-icon">⚡</span>
+          <span>Instant Disbursement</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-icon">🔒</span>
+          <span>Trustless Escrow</span>
+        </div>
+        <div class="stat-chip">
+          <span class="stat-icon">🛡️</span>
+          <span>Tamper-Proof</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROLE CARDS -->
+    <div class="section-label">Choose Your Role</div>
+    <div class="role-grid">
+      <div class="role-card" onclick="switchTab('tab-student')" id="role-student">
+        <div class="role-card-top">
+          <div class="role-icon student-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+          </div>
+          <span class="role-tag">Register</span>
+        </div>
+        <h3>Student</h3>
+        <p>Register your wallet on-chain. Your MetaMask address becomes your permanent payment destination for all future scholarships.</p>
+        <div class="role-footer">
+          <span>Open Portal</span>
+          <span class="arrow-icon">→</span>
+        </div>
+      </div>
+
+      <div class="role-card featured" onclick="switchTab('tab-provider')" id="role-provider">
+        <div class="featured-badge">Most Used</div>
+        <div class="role-card-top">
+          <div class="role-icon provider-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+          </div>
+          <span class="role-tag">Fund</span>
+        </div>
+        <h3>Scholarship Provider</h3>
+        <p>Fund scholarships in ETH and set merit thresholds — attendance % and average mark. Funds are instantly escrowed on-chain.</p>
+        <div class="role-footer">
+          <span>Open Portal</span>
+          <span class="arrow-icon">→</span>
+        </div>
+      </div>
+
+      <div class="role-card" onclick="switchTab('tab-staff')" id="role-staff">
+        <div class="role-card-top">
+          <div class="role-icon staff-icon">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          </div>
+          <span class="role-tag">Verify</span>
+        </div>
+        <h3>University Staff</h3>
+        <p>Submit student results. The smart contract evaluates criteria and automatically disburses funds or marks the scholarship failed.</p>
+        <div class="role-footer">
+          <span>Open Portal</span>
+          <span class="arrow-icon">→</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <div class="how-section">
+      <div class="section-label">How It Works</div>
+      <h2 class="section-title">The Scholarship Lifecycle, <span class="grad-text">Fully Automated</span></h2>
+      <div class="steps-grid">
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <h4>Student Registers</h4>
+          <p>Student submits their name and ID. Their MetaMask wallet is auto-captured on-chain as the payment address.</p>
+        </div>
+        <div class="step-connector">→</div>
+        <div class="step-card">
+          <div class="step-num">02</div>
+          <h4>Provider Funds</h4>
+          <p>Provider sends ETH and sets minimum attendance % and average mark. Funds are locked in the Staff escrow contract.</p>
+        </div>
+        <div class="step-connector">→</div>
+        <div class="step-card">
+          <div class="step-num">03</div>
+          <h4>Staff Submits Results</h4>
+          <p>University staff enters the student's actual attendance and grade. The smart contract evaluates instantly.</p>
+        </div>
+        <div class="step-connector">→</div>
+        <div class="step-card">
+          <div class="step-num">04</div>
+          <h4>Auto Disbursement</h4>
+          <p>Criteria met → ETH transferred directly to student wallet. Not met → marked failed. Cancelled → provider refunded.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- STATUS LIFECYCLE -->
+    <div class="lifecycle-section">
+      <div class="section-label">Scholarship Status Flow</div>
+      <div class="lifecycle-flow">
+        <div class="lc-node active-node">
+          <div class="lc-dot"></div>
+          <span>Active</span>
+        </div>
+        <div class="lc-arrow">→</div>
+        <div class="lc-node paid-node">
+          <div class="lc-dot"></div>
+          <span>Paid ✓</span>
+        </div>
+        <div class="lc-sep">or</div>
+        <div class="lc-node failed-node">
+          <div class="lc-dot"></div>
+          <span>Failed</span>
+        </div>
+        <div class="lc-arrow muted">→</div>
+        <div class="lc-node active-node muted-node">
+          <div class="lc-dot"></div>
+          <span>Re-activated</span>
+        </div>
+        <div class="lc-sep">or</div>
+        <div class="lc-node cancel-node">
+          <div class="lc-dot"></div>
+          <span>Cancelled → Refunded</span>
+        </div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ── TAB: STUDENT ─────────────────────────────────────────────────────── -->
+  <section class="tab-panel" id="tab-student">
+    <div class="portal-header student-header">
+      <div class="portal-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>
+      </div>
+      <div>
+        <h2>Student Portal</h2>
+        <p>Register your details on the blockchain or look up an existing student record.</p>
+      </div>
+    </div>
+
+    <div class="content-area">
+
+      <!-- Register -->
+      <div class="glass-card">
+        <div class="card-head">
+          <div class="card-icon-wrap cyan">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          </div>
+          <div>
+            <div class="card-title">Register Student</div>
+            <div class="card-subtitle">Your connected MetaMask wallet will be saved as your scholarship payment address.</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="stuId">Student ID</label>
+          <input class="form-control" type="number" id="stuId" placeholder="Enter numeric Student ID  (e.g. 1001)" min="1">
+          <div class="field-error" id="stuIdErr"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="stuFirst">First Name</label>
+            <input class="form-control" type="text" id="stuFirst" placeholder="First name">
+            <div class="field-error" id="stuFirstErr"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="stuLast">Last Name</label>
+            <input class="form-control" type="text" id="stuLast" placeholder="Last name">
+            <div class="field-error" id="stuLastErr"></div>
+          </div>
+        </div>
+
+        <div id="stuAlert" class="alert"></div>
+        <div class="btn-group">
+          <button class="btn btn-primary" id="stuSubmitBtn" onclick="registerStudent()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="20 6 9 17 4 12"/></svg>
+            Register Student <span class="spinner" id="stuSpinner"></span>
+          </button>
+        </div>
+      </div>
+
+      <div class="section-divider"><span>or</span></div>
+
+      <!-- Lookup -->
+      <div class="glass-card">
+        <div class="card-head">
+          <div class="card-icon-wrap purple">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <div>
+            <div class="card-title">Look Up Student Record</div>
+            <div class="card-subtitle">Query the blockchain for an existing student's details.</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="stuLookupId">Student ID</label>
+          <input class="form-control" type="number" id="stuLookupId" placeholder="Enter Student ID to search" min="1">
+          <div class="field-error" id="stuLookupIdErr"></div>
+        </div>
+        <div id="stuLookupAlert" class="alert"></div>
+        <div id="stuLookupResult"></div>
+        <div class="btn-group" style="margin-top:16px;">
+          <button class="btn btn-outline" id="stuLookupBtn" onclick="lookupStudent()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Search Blockchain <span class="spinner" id="stuLookupSpinner"></span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── TAB: PROVIDER ────────────────────────────────────────────────────── -->
+  <section class="tab-panel" id="tab-provider">
+    <div class="portal-header provider-header">
+      <div class="portal-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+      </div>
+      <div>
+        <h2>Provider Portal</h2>
+        <p>Fund scholarships, set eligibility criteria, cancel scholarships, or check their on-chain status.</p>
+      </div>
+    </div>
+    <div class="content-area">
+
+      <!-- Add Scholarship -->
+      <div class="glass-card">
+        <div class="card-head">
+          <div class="card-icon-wrap green">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+          </div>
+          <div>
+            <div class="card-title">Add Scholarship</div>
+            <div class="card-subtitle">The ETH amount you specify will be sent via MetaMask and held in the Staff smart contract as escrow until disbursement.</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="provStuId">Student ID</label>
+          <input class="form-control" type="number" id="provStuId" placeholder="Registered student ID" min="1">
+          <div class="field-error" id="provStuIdErr"></div>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="provName">Scholarship Name</label>
+          <input class="form-control" type="text" id="provName" placeholder="e.g. Excellence Award 2025">
+          <div class="field-error" id="provNameErr"></div>
+        </div>
+
+        <!-- Wei / ETH Converter -->
+        <div class="form-group">
+          <label class="form-label" for="provAmt">Amount (Wei)</label>
+          <input class="form-control" type="number" id="provAmt" placeholder="e.g. 1000000000000000" min="1" oninput="updateEthDisplay()">
+          <div class="field-error" id="provAmtErr"></div>
+          <div class="wei-helper" id="ethDisplay">≈ 0 ETH</div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="provAtt">Min. Attendance Required (%)</label>
+            <input class="form-control" type="number" id="provAtt" placeholder="0 – 100" min="0" max="100">
+            <div class="field-error" id="provAttErr"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="provMark">Min. Average Mark Required</label>
+            <input class="form-control" type="number" id="provMark" placeholder="0 – 100" min="0" max="100">
+            <div class="field-error" id="provMarkErr"></div>
+          </div>
+        </div>
+
+        <div id="provAddAlert" class="alert"></div>
+        <div class="btn-group">
+          <button class="btn btn-primary" id="provAddBtn" onclick="addScholarship()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+            Submit &amp; Fund <span class="spinner" id="provAddSpinner"></span>
+          </button>
+        </div>
+      </div>
+
+      <div class="section-divider"><span>or</span></div>
+
+      <!-- Cancel -->
+      <div class="glass-card danger-card">
+        <div class="card-head">
+          <div class="card-icon-wrap red">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+          </div>
+          <div>
+            <div class="card-title">Cancel Scholarship</div>
+            <div class="card-subtitle">Only the original funding wallet can cancel. Funds will not be returned immediately — university staff must process the refund.</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="provCancelId">Student ID</label>
+          <input class="form-control" type="number" id="provCancelId" placeholder="Student ID to cancel scholarship for" min="1">
+          <div class="field-error" id="provCancelIdErr"></div>
+        </div>
+        <div id="provCancelAlert" class="alert"></div>
+        <div class="btn-group">
+          <button class="btn btn-danger" id="provCancelBtn" onclick="cancelScholarship()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            Cancel Scholarship <span class="spinner" id="provCancelSpinner"></span>
+          </button>
+        </div>
+      </div>
+
+      <div class="section-divider"><span>or</span></div>
+
+      <!-- Lookup Scholarship -->
+      <div class="glass-card">
+        <div class="card-head">
+          <div class="card-icon-wrap purple">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+          </div>
+          <div>
+            <div class="card-title">Check Scholarship Status</div>
+            <div class="card-subtitle">Query the blockchain for a scholarship record and its current status.</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="provLookupId">Student ID</label>
+          <input class="form-control" type="number" id="provLookupId" placeholder="Enter Student ID" min="1">
+          <div class="field-error" id="provLookupIdErr"></div>
+        </div>
+        <div id="provLookupAlert" class="alert"></div>
+        <div id="provLookupResult"></div>
+        <div class="btn-group" style="margin-top:16px;">
+          <button class="btn btn-outline" id="provLookupBtn" onclick="lookupScholarship()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+            Look Up <span class="spinner" id="provLookupSpinner"></span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── TAB: STAFF ────────────────────────────────────────────────────────── -->
+  <section class="tab-panel" id="tab-staff">
+    <div class="portal-header staff-header">
+      <div class="portal-icon">
+        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+      </div>
+      <div>
+        <h2>University Staff Portal</h2>
+        <p>Submit student results, process refunds for cancelled scholarships, and re-activate failed ones.</p>
+      </div>
+    </div>
+    <div class="content-area">
+
+      <!-- Disburse -->
+      <div class="glass-card">
+        <div class="card-head">
+          <div class="card-icon-wrap cyan">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+          <div>
+            <div class="card-title">Scholarship Disbursement</div>
+            <div class="card-subtitle">Enter the student's actual results. The smart contract will automatically pay the student if requirements are met — no manual action needed.</div>
+          </div>
+        </div>
+
+        <div class="info-banner">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          If <strong>attendance ≥ required AND mark ≥ required</strong> → ETH sent to student wallet. Otherwise → marked failed.
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="staffId">Student ID</label>
+          <input class="form-control" type="number" id="staffId" placeholder="Student ID with active scholarship" min="1">
+          <div class="field-error" id="staffIdErr"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="staffAtt">Actual Attendance (%)</label>
+            <input class="form-control" type="number" id="staffAtt" placeholder="0 – 100" min="0" max="100">
+            <div class="field-error" id="staffAttErr"></div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="staffMark">Actual Average Mark</label>
+            <input class="form-control" type="number" id="staffMark" placeholder="0 – 100" min="0" max="100">
+            <div class="field-error" id="staffMarkErr"></div>
+          </div>
+        </div>
+
+        <div id="staffPayAlert" class="alert"></div>
+        <div class="btn-group">
+          <button class="btn btn-primary" id="staffPayBtn" onclick="submitResult()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+            Submit &amp; Disburse <span class="spinner" id="staffPaySpinner"></span>
+          </button>
+        </div>
+      </div>
+
+      <div class="section-divider"><span>or</span></div>
+
+      <!-- Refund -->
+      <div class="glass-card">
+        <div class="card-head">
+          <div class="card-icon-wrap yellow">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
+          </div>
+          <div>
+            <div class="card-title">Process Refund to Provider</div>
+            <div class="card-subtitle">Refund escrowed ETH back to the scholarship provider for any cancelled scholarship (status: pending_refund).</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="staffRefundId">Student ID</label>
+          <input class="form-control" type="number" id="staffRefundId" placeholder="Enter Student ID" min="1">
+          <div class="field-error" id="staffRefundIdErr"></div>
+        </div>
+        <div id="staffRefundAlert" class="alert"></div>
+        <div class="btn-group">
+          <button class="btn btn-outline" id="staffRefundBtn" onclick="processRefund()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.5"/></svg>
+            Process Refund <span class="spinner" id="staffRefundSpinner"></span>
+          </button>
+        </div>
+      </div>
+
+      <div class="section-divider"><span>or</span></div>
+
+      <!-- Activate -->
+      <div class="glass-card">
+        <div class="card-head">
+          <div class="card-icon-wrap green">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          </div>
+          <div>
+            <div class="card-title">Re-Activate Failed Scholarship</div>
+            <div class="card-subtitle">Re-activate a scholarship that was marked as failed so the student's results can be re-submitted.</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="staffActivateId">Student ID</label>
+          <input class="form-control" type="number" id="staffActivateId" placeholder="Enter Student ID" min="1">
+          <div class="field-error" id="staffActivateIdErr"></div>
+        </div>
+        <div id="staffActivateAlert" class="alert"></div>
+        <div class="btn-group">
+          <button class="btn btn-outline" id="staffActivateBtn" onclick="activateScholarship()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/></svg>
+            Activate <span class="spinner" id="staffActivateSpinner"></span>
+          </button>
+        </div>
+      </div>
+
+      <div class="section-divider"><span>or</span></div>
+
+      <!-- Check Status -->
+      <div class="glass-card">
+        <div class="card-head">
+          <div class="card-icon-wrap purple">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+          </div>
+          <div>
+            <div class="card-title">Check Scholarship Status</div>
+            <div class="card-subtitle">View the current on-chain status of any scholarship by Student ID.</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="staffStatusId">Student ID</label>
+          <input class="form-control" type="number" id="staffStatusId" placeholder="Enter Student ID" min="1">
+          <div class="field-error" id="staffStatusIdErr"></div>
+        </div>
+        <div id="staffStatusAlert" class="alert"></div>
+        <div id="staffStatusResult"></div>
+        <div class="btn-group" style="margin-top:16px;">
+          <button class="btn btn-outline" id="staffStatusBtn" onclick="checkStatus()">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+            Check Status <span class="spinner" id="staffStatusSpinner"></span>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- ── FOOTER ─────────────────────────────────────────────────────────── -->
+  <footer class="app-footer">
+    <div class="footer-inner">
+      <div class="brand" style="justify-content:center;">
+        <div class="brand-logo">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/>
+            <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/>
+          </svg>
+        </div>
+        <span class="brand-name" style="font-size:14px;">Block<span>Scholar</span></span>
+      </div>
+      <p style="color:var(--muted); font-size:12px; margin-top:8px;">
+        Powered by Ethereum · Solidity 0.8.x · ethers.js · Ganache
+      </p>
+    </div>
+  </footer>
+
+  <script src="app.js"></script>
+  <script>
+    // Wei → ETH display helper
+    function updateEthDisplay() {
+      const wei = document.getElementById('provAmt').value;
+      const display = document.getElementById('ethDisplay');
+      if (!wei || isNaN(wei) || BigInt(wei) <= 0n) {
+        display.textContent = '≈ 0 ETH';
+        return;
+      }
+      try {
+        const eth = parseFloat(wei) / 1e18;
+        display.textContent = '≈ ' + eth.toFixed(8).replace(/\.?0+$/, '') + ' ETH';
+      } catch { display.textContent = '≈ — ETH'; }
+    }
+  </script>
+</body>
+</html>
