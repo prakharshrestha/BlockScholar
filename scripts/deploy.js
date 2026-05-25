@@ -6,6 +6,7 @@
  * Usage:  npm run deploy
  *
  * What it does:
+ *  0. Auto-kills any existing process on ports 7545 / 3300
  *  1. Starts a local Ganache Ethereum node (port 7545, Chain ID 1337)
  *  2. Compiles ScholarshipDisbursement.sol using solc
  *  3. Deploys StuDetails → ScholarDetails → Staff (in correct order)
@@ -21,6 +22,23 @@ const solc     = require('solc');
 const express  = require('express');
 const path     = require('path');
 const fs       = require('fs');
+const { execSync } = require('child_process');
+
+// ── Kill any existing process on a given port (Windows) ──────────────────────
+function killPort(port) {
+  try {
+    const result = execSync(`netstat -ano | findstr :${port}`, { encoding: 'utf8', stdio: ['pipe','pipe','ignore'] });
+    const pids = [...new Set(
+      result.trim().split('\n')
+        .map(line => line.trim().split(/\s+/).pop())
+        .filter(pid => /^\d+$/.test(pid) && pid !== '0')
+    )];
+    pids.forEach(pid => {
+      try { execSync(`taskkill /F /PID ${pid}`, { stdio: 'ignore' }); } catch {}
+    });
+    if (pids.length) info(`Cleared port ${port} (freed PID ${pids.join(', ')})`);
+  } catch {} // port was already free — no-op
+}
 
 // ── Config ──────────────────────────────────────────────────────────────────
 const GANACHE_PORT = 7545;
@@ -43,6 +61,14 @@ async function main() {
   log('║         🎓  BlockScholar — Auto Deploy Tool            ║');
   log('╚════════════════════════════════════════════════════════╝');
   log('');
+
+  // ── STEP 0: Clear any occupied ports ─────────────────────────────────────
+  sep();
+  log('  STEP 0 › Clearing ports 7545 & 3300 (if in use)');
+  sep();
+  killPort(GANACHE_PORT);
+  killPort(APP_PORT);
+  ok('Ports ready');
 
   // ── STEP 1: Start Ganache ─────────────────────────────────────────────────
   sep();
